@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- ════════════ HERO / FEATURED POST ════════════ -->
+{% if featured %}
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center g-0 hero-card" data-aos="fade-up">
+      <div class="col-lg-6 order-lg-2">
+        {% if featured.cover_image %}
+        <div class="hero-image-wrap">
+          <img src="{{ url_for('static', filename=featured.cover_image) }}" alt="{{ featured.title }}" class="hero-image" onerror="this.parentElement.style.display='none'">
+        </div>
+        {% else %}
+        <div class="hero-image-placeholder"><i class="bi bi-pen-fill"></i></div>
+        {% endif %}
+      </div>
+      <div class="col-lg-6 order-lg-1 hero-content">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="badge badge-featured">Featured</span>
+          {% if featured.category %}
+          <span class="badge" style="background: {{ featured.category.color }}20; color: {{ featured.category.color }};">
+            <i class="{{ featured.category.icon }} me-1"></i>{{ featured.category.name }}
+          </span>
+          {% endif %}
+        </div>
+        <h1 class="hero-title">
+          <a href="{{ url_for('posts.detail', slug=featured.slug) }}">{{ featured.title }}</a>
+        </h1>
+        <p class="hero-excerpt">{{ featured.excerpt or featured.content[:200] }}…</p>
+        <div class="hero-meta">
+          <a href="{{ url_for('users.profile', username=featured.author.username) }}" class="author-link">
+            <img src="{{ url_for('static', filename=featured.author.avatar_url) }}" alt="{{ featured.author.username }}" class="avatar-xs rounded-circle" onerror="this.src='/static/images/default_avatar.png'">
+            <span>{{ featured.author.display_name or featured.author.username }}</span>
+          </a>
+          <span class="text-muted">·</span>
+          <span class="text-muted small">{{ featured.published_at.strftime('%b %d, %Y') if featured.published_at else '' }}</span>
+          <span class="text-muted">·</span>
+          <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ featured.reading_time }} min read</span>
+        </div>
+        <a href="{{ url_for('posts.detail', slug=featured.slug) }}" class="btn btn-primary rounded-pill mt-3">
+          Read Article <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% else %}
+<!-- No featured post hero -->
+<section class="hero-section hero-empty">
+  <div class="container text-center py-5">
+    <div data-aos="fade-up">
+      <div class="hero-icon-wrap mb-4"><i class="bi bi-pen-fill"></i></div>
+      <h1 class="display-5 fw-bold mb-3">Welcome to <span class="text-primary">Inkwell</span></h1>
+      <p class="lead text-muted mb-4 mx-auto" style="max-width:560px">Discover stories, thinking, and expertise from writers on any topic.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg rounded-pill px-4">Start Writing Free</a>
+        <a href="{{ url_for('posts.index') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Explore Stories</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ════════════ CATEGORIES ════════════ -->
+{% if categories %}
+<section class="categories-section py-4">
+  <div class="container">
+    <div class="d-flex gap-2 flex-wrap categories-scroll">
+      <a href="{{ url_for('posts.index') }}" class="btn btn-category {% if not request.args.get('category') %}active{% endif %}">
+        <i class="bi bi-grid me-1"></i>All
+      </a>
+      {% for cat in categories %}
+      <a href="{{ url_for('posts.index', category=cat.slug) }}" class="btn btn-category {% if request.args.get('category') == cat.slug %}active{% endif %}" style="--cat-color: {{ cat.color }}">
+        <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+        <span class="badge-count">{{ cat.posts.filter_by(status='published').count() }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ════════════ LATEST POSTS GRID ════════════ -->
+<section class="posts-section py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Posts -->
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="section-title">Latest Stories</h2>
+          <a href="{{ url_for('posts.index') }}" class="btn btn-link text-decoration-none">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        {% if latest %}
+        <div class="posts-grid">
+          {% for post in latest %}
+          <article class="post-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+            <a href="{{ url_for('posts.detail', slug=post.slug) }}" class="post-card-image-link">
+              {% if post.cover_image %}
+              <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}" class="post-card-img" loading="lazy" onerror="this.parentElement.classList.add('no-image')">
+              {% else %}
+              <div class="post-card-img-placeholder"><i class="bi bi-journal-text"></i></div>
+              {% endif %}
+            </a>
+            <div class="post-card-body">
+              <div class="post-card-meta-top">
+                {% if post.category %}
+                <a href="{{ url_for('posts.index', category=post.category.slug) }}" class="post-category-badge" style="color: {{ post.category.color }}">
+                  {{ post.category.name }}
+                </a>
+                {% endif %}
+                <span class="post-reading-time"><i class="bi bi-clock"></i> {{ post.reading_time }} min</span>
+              </div>
+              <h3 class="post-card-title">
+                <a href="{{ url_for('posts.detail', slug=post.slug) }}">{{ post.title }}</a>
+              </h3>
+              <p class="post-card-excerpt">{{ post.excerpt or (post.content|striptags)[:120] }}…</p>
+              <div class="post-card-footer">
+                <a href="{{ url_for('users.profile', username=post.author.username) }}" class="author-link-sm">
+                  <img src="{{ url_for('static', filename=post.author.avatar_url) }}" alt="{{ post.author.username }}" class="avatar-xs rounded-circle" onerror="this.src='/static/images/default_avatar.png'">
+                  <span>{{ post.author.display_name or post.author.username }}</span>
+                </a>
+                <div class="post-card-stats">
+                  <span><i class="bi bi-heart"></i> {{ post.like_count }}</span>
+                  <span><i class="bi bi-chat"></i> {{ post.comment_count }}</span>
+                </div>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-journal-x"></i>
+          <p>No posts yet. Be the first to write!</p>
+          <a href="{{ url_for('posts.create') if current_user else url_for('auth.register') }}" class="btn btn-primary rounded-pill">Start Writing</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="col-lg-4 mt-5 mt-lg-0">
+        {% if not current_user %}
+        <div class="sidebar-card card-cta" data-aos="fade-left">
+          <h5>Join Inkwell</h5>
+          <p>Write and connect with millions of readers and writers.</p>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary w-100 rounded-pill mb-2">Create Account</a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary w-100 rounded-pill">Sign In</a>
+        </div>
+        {% endif %}
+
+        <!-- Trending -->
+        {% if popular %}
+        <div class="sidebar-card" data-aos="fade-left" data-aos-delay="100">
+          <h6 class="sidebar-card-title"><i class="bi bi-fire me-2 text-danger"></i>Trending Now</h6>
+          <ol class="trending-list">
+            {% for post in popular %}
+            <li>
+              <a href="{{ url_for('posts.detail', slug=post.slug) }}" class="trending-link">
+                <span class="trending-num">{{ loop.index }}</span>
+                <div class="trending-info">
+                  <span class="trending-title">{{ post.title }}</span>
+                  <span class="trending-meta">{{ post.author.display_name or post.author.username }} · {{ post.view_count }} views</span>
+                </div>
+              </a>
+            </li>
+            {% endfor %}
+          </ol>
+        </div>
+        {% endif %}
+
+        <!-- Categories -->
+        {% if categories %}
+        <div class="sidebar-card" data-aos="fade-left" data-aos-delay="150">
+          <h6 class="sidebar-card-title"><i class="bi bi-tag me-2 text-primary"></i>Browse Categories</h6>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            {% for cat in categories %}
+            <a href="{{ url_for('posts.index', category=cat.slug) }}" class="badge-category-link" style="--cat-color: {{ cat.color }}">
+              <i class="{{ cat.icon }} me-1"></i>{{ cat.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

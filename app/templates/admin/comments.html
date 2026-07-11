@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Manage Comments – Admin{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include 'admin/partials/sidebar.html' %}
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h4 class="admin-page-title">Comment Moderation</h4>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-sm {% if not flagged_only %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+        <a href="{{ url_for('admin.manage_comments', flagged='1') }}" class="btn btn-sm {% if flagged_only %}btn-primary{% else %}btn-outline-secondary{% endif %}">Flagged</a>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-body p-0">
+        <table class="table table-hover admin-table mb-0">
+          <thead><tr><th>Author</th><th>Comment</th><th>Post</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for comment in comments.items %}
+            <tr {% if comment.is_flagged %}class="table-warning"{% endif %}>
+              <td class="small">{{ comment.author.username }}</td>
+              <td class="small">{{ comment.content[:100] }}{% if comment.content|length > 100 %}…{% endif %}
+                {% if comment.is_flagged %}<span class="badge bg-danger ms-1">Flagged</span>{% endif %}
+              </td>
+              <td class="small"><a href="{{ url_for('posts.detail', slug=comment.post.slug) }}" target="_blank">{{ comment.post.title[:35] }}…</a></td>
+              <td class="small text-muted">{{ comment.created_at.strftime('%b %d') }}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  {% if comment.is_flagged %}
+                  <form method="POST" action="{{ url_for('admin.approve_comment', comment_id=comment.id) }}" style="display:inline">
+                    <button class="btn btn-xs btn-outline-success">Approve</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('admin.delete_comment', comment_id=comment.id) }}" style="display:inline" onsubmit="return confirm('Delete?')">
+                    <button class="btn btn-xs btn-outline-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

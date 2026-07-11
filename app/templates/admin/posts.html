@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Manage Posts – Admin{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include 'admin/partials/sidebar.html' %}
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h4 class="admin-page-title">Post Management</h4>
+      <div class="d-flex gap-2">
+        {% for s, label in [('','All'),('published','Published'),('draft','Draft'),('flagged','Flagged')] %}
+        <a href="{{ url_for('admin.manage_posts', status=s) }}" class="btn btn-sm {% if status_filter == s %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-body p-0">
+        <table class="table table-hover admin-table mb-0">
+          <thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Views</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for post in posts.items %}
+            <tr>
+              <td><a href="{{ url_for('posts.detail', slug=post.slug) }}" target="_blank" class="fw-medium">{{ post.title[:55] }}{% if post.title|length > 55 %}…{% endif %}</a></td>
+              <td class="small text-muted">{{ post.author.username }}</td>
+              <td>
+                {% if post.status == 'published' %}<span class="badge bg-success">Published</span>
+                {% elif post.status == 'draft' %}<span class="badge bg-secondary">Draft</span>
+                {% else %}<span class="badge bg-danger">Flagged</span>{% endif %}
+              </td>
+              <td class="small">{{ post.view_count }}</td>
+              <td class="small text-muted">{{ post.created_at.strftime('%b %d, %Y') }}</td>
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  {% if post.status == 'flagged' %}
+                  <form method="POST" action="{{ url_for('admin.approve_post', post_id=post.id) }}" style="display:inline">
+                    <button class="btn btn-xs btn-outline-success">Approve</button>
+                  </form>
+                  {% elif post.status == 'published' %}
+                  <form method="POST" action="{{ url_for('admin.flag_post', post_id=post.id) }}" style="display:inline">
+                    <button class="btn btn-xs btn-outline-warning">Flag</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('admin.delete_post', post_id=post.id) }}" style="display:inline" onsubmit="return confirm('Delete?')">
+                    <button class="btn btn-xs btn-outline-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
