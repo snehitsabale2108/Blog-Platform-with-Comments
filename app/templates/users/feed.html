@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}My Feed{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4"><i class="bi bi-rss-fill me-2 text-primary"></i>Your Feed</h2>
+  {% if posts.items %}
+  <div class="posts-grid">
+    {% for post in posts.items %}
+    <article class="post-card" data-aos="fade-up">
+      <a href="{{ url_for('posts.detail', slug=post.slug) }}" class="post-card-image-link">
+        {% if post.cover_image %}
+        <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}" class="post-card-img" loading="lazy" onerror="this.parentElement.classList.add('no-image')">
+        {% else %}
+        <div class="post-card-img-placeholder"><i class="bi bi-journal-text"></i></div>
+        {% endif %}
+      </a>
+      <div class="post-card-body">
+        <h5 class="post-card-title"><a href="{{ url_for('posts.detail', slug=post.slug) }}">{{ post.title }}</a></h5>
+        <p class="post-card-excerpt text-muted">{{ post.excerpt or (post.content|striptags)[:100] }}…</p>
+        <div class="post-card-footer">
+          <a href="{{ url_for('users.profile', username=post.author.username) }}" class="author-link-sm">
+            <img src="{{ url_for('static', filename=post.author.avatar_url) }}" alt="{{ post.author.username }}" class="avatar-xs rounded-circle" onerror="this.src='/static/images/default_avatar.png'">
+            <span>{{ post.author.display_name or post.author.username }}</span>
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-people"></i>
+    <p>Follow some authors to see their posts here.</p>
+    <a href="{{ url_for('posts.index') }}" class="btn btn-primary rounded-pill">Discover Writers</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
