@@ -13,10 +13,6 @@ env/
 # SQLite DB (instance folder)
 instance/
 
-# User uploads
-app/static/uploads/*
-!app/static/uploads/.gitkeep
-
 # Migrations cache only (keep migrations/ folder itself)
 migrations/__pycache__/
 
