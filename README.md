@@ -139,10 +139,10 @@ Open http://localhost:5000
 **Sample accounts (after seeding):**
 | Email | Password | Role |
 |---|---|---|
-| admin@inkwell.com | Admin1234! | admin |
-| alice@inkwell.com | Alice1234! | author |
-| bob@inkwell.com | Bob12345! | author |
-| carol@inkwell.com | Carol123! | author |
+| admin@inkwell.com | Admin@123 | admin |
+| alice@inkwell.com | Alice@123 | author |
+| bob@inkwell.com | Bob@123 | author |
+| carol@inkwell.com | Carol@123 | author |
 
 ---
 

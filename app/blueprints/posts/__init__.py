@@ -132,6 +132,12 @@ def create():
         if tag_ids:
             post.tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
 
+        if current_user.role == "admin":
+            is_featured_value = request.form.get("is_featured") == "1"
+            if is_featured_value:
+                Post.query.update({"is_featured": False})
+            post.is_featured = is_featured_value
+
         cover = request.files.get("cover_image")
         if cover and cover.filename:
             from ...utils.image_handler import save_image
@@ -176,6 +182,12 @@ def edit(slug):
 
         if tag_ids:
             post.tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
+
+        if current_user.role == "admin":
+            is_featured_value = request.form.get("is_featured") == "1"
+            if is_featured_value:
+                Post.query.filter(Post.id != post.id).update({"is_featured": False})
+            post.is_featured = is_featured_value
 
         cover = request.files.get("cover_image")
         if cover and cover.filename:

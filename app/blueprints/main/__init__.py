@@ -10,6 +10,15 @@ def get_current_user():
     return User.query.get(uid) if uid else None
 
 
+@main_bp.route("/privacy")
+def privacy():
+    return render_template("main/privacy.html", current_user=get_current_user())
+
+
+@main_bp.route("/terms")
+def terms():
+    return render_template("main/terms.html", current_user=get_current_user())
+    
 @main_bp.route("/")
 def index():
     featured = Post.query.filter_by(status="published", is_featured=True)\
