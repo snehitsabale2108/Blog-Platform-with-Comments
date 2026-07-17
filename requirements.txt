@@ -13,4 +13,4 @@ Pillow==10.4.0
 SQLAlchemy==2.0.35
 Werkzeug==3.0.4
 gunicorn==22.0.0
-# psycopg2-binary==2.9.9  # Uncomment for PostgreSQL in production
+psycopg2-binary==2.9.9  # Uncomment for PostgreSQL in production
