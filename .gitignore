@@ -10,19 +10,12 @@ venv/
 env/
 *.egg-info/
 
-# SQLite DB (instance folder)
-instance/
-
 # Migrations cache only (keep migrations/ folder itself)
 migrations/__pycache__/
 
 # IDE
 .vscode/
 .idea/
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
