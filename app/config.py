@@ -16,7 +16,12 @@ def _make_sqlite_url(raw: str) -> str:
     ``sqlite:///instance/dev.db`` fail.  We resolve them to absolute here.
     """
     if not raw.startswith("sqlite:///"):
-        return raw                     # postgres / mysql – leave untouched
+        # postgres – rewrite scheme so SQLAlchemy uses psycopg3, not psycopg2
+        if raw.startswith("postgres://"):
+            return raw.replace("postgres://", "postgresql+psycopg://", 1)
+        if raw.startswith("postgresql://"):
+            return raw.replace("postgresql://", "postgresql+psycopg://", 1)
+        return raw                     # mysql etc – leave untouched
 
     # Extract the file part after the three slashes
     file_part = raw[len("sqlite:///"):]
